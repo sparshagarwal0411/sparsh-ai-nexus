@@ -4,9 +4,9 @@ import SectionWrapper from "./SectionWrapper";
 import { Brain, Heart, Code2, Rocket, Cpu, Globe, Zap, MessageSquare, Trophy, Coffee, Sparkles, Activity } from "lucide-react";
 
 const stats = [
-  { label: "Months Coding", value: 6 },
-  { label: "Projects", value: 10 },
-  { label: "Hackathon Podium Finishes", value: 3 }
+  { label: "Months Coding *", value: 11 },
+  { label: "Projects *", value: 10 },
+  { label: "Hackathon Podium Finishes *", value: 7 }
 ];
 
 const interests = [

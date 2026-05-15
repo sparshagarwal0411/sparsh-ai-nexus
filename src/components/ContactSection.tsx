@@ -85,12 +85,12 @@ export default function ContactSection() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="glass rounded-xl p-8 neon-border relative overflow-hidden"
+          className="glass rounded-xl p-10 pr-12 neon-border relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-32 h-25 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-32 h-25 bg-pink-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-          <h3 className="text-xl font-bold mb-6 gradient-text">Send Message</h3>
+          <h3 className="text-2xl font-bold mb-6 gradient-text">Send Message</h3>
           <ContactForm />
         </motion.div>
 

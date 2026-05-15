@@ -27,7 +27,7 @@ const projects = [
     live: "https://sih.adityaexp.dev",
     github: "https://github.com/AvikYadav/Jharkhand-Tourism",
     accent: "neon-purple",
-    image: "/jhanrkhand.png",
+    image: "/jharkhand.png",
   },
   {
     title: "CleanWard",
@@ -36,7 +36,7 @@ const projects = [
     live: "https://cleanward-1.vercel.app/",
     github: "https://github.com/sparshagarwal0411/cleanward-1",
     accent: "neon-pink",
-    image: "/cleanward.jpg",
+    image: "/cleanward.png",
   },
   {
     title: "UPSC Clone",
@@ -45,7 +45,7 @@ const projects = [
     live: "https://upsc-final-1.vercel.app/",
     github: "https://github.com/sparshagarwal0411/upsc-final",
     accent: "primary",
-    image: "/UPSC circle.jpg",
+    image: "/UPSC%20circle.jpg",
   },
   {
     title: "LinkedIn Profile Reviewer",
@@ -54,7 +54,7 @@ const projects = [
     live: "https://linkedin-profile-reviewer-sigma.vercel.app/",
     github: "https://github.com/sparshagarwal0411/linkedin-profile-reviewer",
     accent: "neon-purple",
-    image: "/LinkedIn review.png",
+    image: "/LinkedIn%20review.png",
   },
   {
     title: "DelhiGrid",

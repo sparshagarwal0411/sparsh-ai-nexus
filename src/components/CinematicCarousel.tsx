@@ -79,10 +79,10 @@ export default function CinematicCarousel({ items }: CinematicCarouselProps) {
                         transition={{ duration: 1.5, ease: "easeOut" }}
                         className="absolute inset-0 w-full h-full"
                     >
-                        <div
-                            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                            style={{ backgroundImage: `url(${currentProject.image || '/placeholder.svg'})` }}
-                        />
+            <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: `url(${currentProject.image || '/placeholder.svg'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+            />
                         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
                     </motion.div>
 
@@ -151,7 +151,7 @@ export default function CinematicCarousel({ items }: CinematicCarouselProps) {
                         transition={{ type: "spring", stiffness: 40, damping: 20 }}
                         className="absolute top-20 right-20 w-64 h-64 rounded-full border border-white/20 overflow-hidden hidden lg:block z-0 opacity-40 grayscale blur-[1px]"
                     >
-                        <img src={currentProject.image || '/placeholder.svg'} alt="" className="w-full h-full object-contain scale-110" />
+                        <img src={currentProject.image || '/placeholder.svg'} alt="" className="w-full h-full object-cover scale-110" />
                     </motion.div>
                 </motion.div>
             </AnimatePresence>
