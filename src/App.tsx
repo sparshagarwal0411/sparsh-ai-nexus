@@ -1,6 +1,9 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { CustomCursor } from "@/components/CustomCursor";
+import CommandPalette from "@/components/CommandPalette";
+import ScrollNav from "@/components/ScrollNav";
+import AudioToggle from "@/components/AudioToggle";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -16,6 +19,9 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <CustomCursor />
+        <CommandPalette />
+        <ScrollNav />
+        <AudioToggle />
         <Sonner />
         <BrowserRouter>
           <Routes>

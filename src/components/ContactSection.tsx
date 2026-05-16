@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import SectionWrapper from "./SectionWrapper";
 import { Mail, Github, Linkedin, MapPin, Instagram } from "lucide-react";
 import ContactForm from "./ContactForm";
+import Snowfall from 'react-snowfall';
 
 const socials = [
   {
@@ -65,8 +66,9 @@ export default function ContactSection() {
                 viewport={{ once: false }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ x: 6 }}
-                className="flex items-center gap-4 glass rounded-xl p-5 neon-border hover:neon-glow-box transition-all duration-300 group"
+                className="flex items-center gap-4 glass rounded-xl p-5 neon-border hover:neon-glow-box transition-all duration-300 group relative overflow-hidden"
               >
+                <Snowfall color={'#00FFF0'} snowflakeCount={10} />
                 <s.icon size={22} className="text-primary flex-shrink-0" />
                 <div>
                   <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
@@ -87,6 +89,7 @@ export default function ContactSection() {
           transition={{ delay: 0.2 }}
           className="glass rounded-xl p-10 pr-12 neon-border relative overflow-hidden"
         >
+          <Snowfall color={['#7F00FF']} snowflakeCount={20} />
           <div className="absolute top-0 right-0 w-32 h-25 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-32 h-25 bg-pink-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 

@@ -2,6 +2,7 @@ import { motion, useInView, useSpring, useMotionValue, useTransform } from "fram
 import { useEffect, useRef } from "react";
 import SectionWrapper from "./SectionWrapper";
 import { Brain, Heart, Code2, Rocket, Cpu, Globe, Zap, MessageSquare, Trophy, Coffee, Sparkles, Activity } from "lucide-react";
+import Snowfall from 'react-snowfall';
 
 const stats = [
   { label: "Months Coding *", value: 11 },
@@ -83,8 +84,9 @@ const InfiniteMarquee = () => {
         {[...interests, ...interests, ...interests].map((item, i) => (
           <div
             key={i}
-            className="w-48 h-32 bg-secondary/90 border border-primary/20 rounded-xl flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-sm hover:border-primary/50 transition-colors group"
+            className="w-48 h-32 bg-secondary/90 border border-primary/20 rounded-xl flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-sm hover:border-primary/50 transition-colors group relative overflow-hidden"
           >
+            {/* <Snowfall color="#00D8FF" snowflakeCount={30} /> */}
             <item.icon size={32} className="text-primary group-hover:scale-110 transition-transform duration-300" />
             <span className="text-sm font-medium text-foreground/90">{item.label}</span>
           </div>

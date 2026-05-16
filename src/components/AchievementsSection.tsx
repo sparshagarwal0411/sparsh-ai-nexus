@@ -85,6 +85,11 @@ const TiltCard = ({ children, className, accent, bgImage }: { children: React.Re
 
   const rotateX = useTransform(mouseY, [-0.5, 0.5], ["10deg", "-10deg"]);
   const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-10deg", "10deg"]);
+  
+  // Holographic glare transforms
+  const glareX = useTransform(mouseX, [-0.5, 0.5], ["0%", "100%"]);
+  const glareY = useTransform(mouseY, [-0.5, 0.5], ["0%", "100%"]);
+  const glareOpacity = useTransform(mouseX, [-0.5, 0.5], [0.2, 0.6]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
@@ -107,6 +112,15 @@ const TiltCard = ({ children, className, accent, bgImage }: { children: React.Re
       whileHover={{ scale: 1.02, z: 50 }}
       className={`glass rounded-3xl p-8 neon-border relative overflow-hidden group transition-all duration-500 h-full cursor-pointer flex flex-col justify-between ${className}`}
     >
+      {/* Holographic Glare Overlay */}
+      <motion.div
+        style={{
+          background: `radial-gradient(circle at ${glareX} ${glareY}, rgba(255,255,255,0.3) 0%, transparent 60%)`,
+          opacity: glareOpacity
+        }}
+        className="absolute inset-0 z-20 pointer-events-none group-hover:block hidden"
+      />
+
       {/* Background Image with Overlay */}
       {bgImage && (
         <>

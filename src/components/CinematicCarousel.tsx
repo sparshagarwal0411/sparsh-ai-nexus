@@ -10,6 +10,7 @@ interface Project {
     github: string;
     accent: string;
     image: string | null;
+    bgImage?: string | null;
 }
 
 interface CinematicCarouselProps {
@@ -81,7 +82,7 @@ export default function CinematicCarousel({ items }: CinematicCarouselProps) {
                     >
             <div
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                style={{ backgroundImage: `url(${currentProject.image || '/placeholder.svg'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                style={{ backgroundImage: `url(${currentProject.bgImage || currentProject.image || '/placeholder.svg'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
             />
                         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
                     </motion.div>
@@ -230,7 +231,7 @@ export default function CinematicCarousel({ items }: CinematicCarouselProps) {
             </div>
 
             {/* Progress Dots */}
-            <div className="absolute bottom-12 left-12 z-20 flex items-center gap-4">
+            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 bg-black/20 backdrop-blur-sm px-6 py-3 rounded-full border border-white/5">
                 {items.map((_, idx) => (
                     <button
                         key={idx}
