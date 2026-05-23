@@ -24,6 +24,16 @@ const projects = [
     bgImage: "/llock.png",
   },
   {
+    title: "Internly",
+    desc: "Internly- Dream. Apply. Get hired.",
+    tech: ["React", "Next JS", "Gemini", "Supabase"],
+    live: "https://internly-internships.vercel.app/",
+    github: "https://github.com/sparshagarwal0411/ai-career-compass",
+    accent: "primary",
+    image: "/smint.png",
+    bgImage: "/int.png",
+  },
+  {
     title: "Green Canopy Connect",
     desc: "A movement towards restoring the ecological balance of our planet through tree plantation. Join us in planting 1 crore trees and contribute to a greener, healthier future for generations to come.",
     tech: ["React", "Payment Gateway", "MongoDB", "Razorpay"],
