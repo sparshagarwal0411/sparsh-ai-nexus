@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -117,6 +117,10 @@
 
   .font-mono-code {
     font-family: 'JetBrains Mono', monospace;
+  }
+
+  .greeting-native {
+    font-family: 'Noto Sans JP', 'Noto Sans', 'Segoe UI', system-ui, sans-serif;
   }
 }
 

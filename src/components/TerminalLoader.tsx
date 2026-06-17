@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Terminal, Cpu, Play } from "lucide-react";
+import { Terminal, Play } from "lucide-react";
+import { soundManager } from "@/utils/SoundManager";
 
 interface TerminalLoaderProps {
   onComplete: () => void;
@@ -46,6 +47,17 @@ interface StepProgress {
 
 type Step = StepTypewrite | StepInstant | StepLogs | StepProgress;
 
+type Phase = "terminal" | "greetings" | "helloworld" | "done";
+
+const GREETINGS = [
+  "नमस्ते",     // Hindi
+  "Ciao",       // Italian
+  "ありがとう",  // Japanese
+  "Bonjour",    // French
+  "Hola",       // Spanish
+  "Hello",      // English
+];
+
 export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
   const [lines, setLines] = useState<DisplayLine[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -54,6 +66,10 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
   const [progressVal, setProgressVal] = useState(0);
   const [progressLabel, setProgressLabel] = useState("");
   const [isExiting, setIsExiting] = useState(false);
+  const [phase, setPhase] = useState<Phase>("terminal");
+  const [greetingIndex, setGreetingIndex] = useState(0);
+  const [greetingVisible, setGreetingVisible] = useState(true);
+  const [hwTyped, setHwTyped] = useState("");
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   const steps: Step[] = [
@@ -195,15 +211,60 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     }, 600); // Allow exit animation to complete
   };
 
+  // Greetings rolling sequence
+  useEffect(() => {
+    if (phase !== "greetings" || isExiting) return;
+
+    if (greetingIndex >= GREETINGS.length) {
+      const timer = setTimeout(() => setPhase("helloworld"), 350);
+      return () => clearTimeout(timer);
+    }
+
+    setGreetingVisible(true);
+    soundManager.playPageFlip(true);
+
+    let advanceTimer: ReturnType<typeof setTimeout>;
+    const holdTimer = setTimeout(() => {
+      setGreetingVisible(false);
+      advanceTimer = setTimeout(() => {
+        setGreetingIndex((i) => i + 1);
+      }, 220);
+    }, 420);
+
+    return () => {
+      clearTimeout(holdTimer);
+      clearTimeout(advanceTimer);
+    };
+  }, [phase, greetingIndex, isExiting]);
+
+  // Hello World typewriter
+  useEffect(() => {
+    if (phase !== "helloworld" || isExiting) return;
+
+    const text = "Hello World";
+    setHwTyped("");
+    let charIndex = 0;
+
+    const interval = setInterval(() => {
+      if (charIndex < text.length) {
+        setHwTyped(text.slice(0, charIndex + 1));
+        soundManager.playTypeKey(true);
+        charIndex++;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => handleSkip(), 1400);
+      }
+    }, 70);
+
+    return () => clearInterval(interval);
+  }, [phase, isExiting]);
+
   // State machine loop
   useEffect(() => {
-    if (isExiting) return;
+    if (isExiting || phase !== "terminal") return;
 
     if (currentStepIndex >= steps.length) {
-      // Finished all steps, delay slightly and exit
-      const timer = setTimeout(() => {
-        handleSkip();
-      }, 300);
+      const timer = setTimeout(() => setPhase("greetings"), 500);
       return () => clearTimeout(timer);
     }
 
@@ -218,6 +279,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
         const charToType = step.text[charIndex];
         if (charToType !== undefined) {
           setTypedText((prev) => prev + charToType);
+          soundManager.playTypeKey(true);
           charIndex++;
         }
         
@@ -300,7 +362,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
 
       return () => clearInterval(timer);
     }
-  }, [currentStepIndex, isExiting]);
+  }, [currentStepIndex, isExiting, phase]);
 
   const renderLineColor = (type: LineType) => {
     switch (type) {
@@ -365,10 +427,14 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
           <div className="crt-overlay crt-flicker absolute inset-0 pointer-events-none" />
 
           {/* Central Terminal Window */}
+          <AnimatePresence>
+          {phase === "terminal" && (
           <motion.div
+            key="terminal-window"
             initial={{ scale: 0.92, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            exit={{ scale: 0.95, opacity: 0, y: -20, filter: "blur(4px)" }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
             className="relative w-full max-w-2xl mx-4 rounded-lg border border-primary/20 bg-slate-950/80 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] overflow-hidden flex flex-col h-[420px] sm:h-[450px]"
           >
             {/* Terminal Title Bar */}
@@ -444,6 +510,63 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
             {/* Subtle Terminal Scan Lines Glow */}
             <div className="absolute inset-0 pointer-events-none border border-primary/5 rounded-lg" />
           </motion.div>
+          )}
+          </AnimatePresence>
+
+          {/* Rolling greetings → Hello → Hello World */}
+          <AnimatePresence>
+            {(phase === "greetings" || phase === "helloworld") && (
+              <motion.div
+                key="greeting-sequence"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, scale: 1.02, filter: "blur(6px)" }}
+                transition={{ duration: 0.4 }}
+                className="absolute inset-0 flex flex-col items-center justify-center z-10"
+              >
+                {phase === "greetings" && greetingIndex < GREETINGS.length && (
+                  <AnimatePresence mode="wait">
+                    {greetingVisible && (
+                      <motion.div
+                        key={greetingIndex}
+                        initial={{ opacity: 0, y: 40, rotateX: -20 }}
+                        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                        exit={{ opacity: 0, y: -40, rotateX: 20 }}
+                        transition={{ duration: 0.28, ease: [0.43, 0.13, 0.23, 0.96] }}
+                        className="text-center"
+                      >
+                        <h1 className="greeting-native text-4xl sm:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-primary to-emerald-300 tracking-tight">
+                          {GREETINGS[greetingIndex]}
+                        </h1>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                )}
+
+                {phase === "helloworld" && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.35 }}
+                    className="text-center"
+                  >
+                    <h1 className="text-4xl sm:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-emerald-300 tracking-tight">
+                      {hwTyped}
+                      <span className="inline-block w-[3px] sm:w-1 h-10 sm:h-14 ml-1 bg-primary align-middle term-cursor" />
+                    </h1>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: hwTyped === "Hello World" ? 1 : 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="mt-4 text-xs sm:text-sm text-primary/40 tracking-[0.4em] uppercase"
+                    >
+                      Welcome to Sparsh AI Nexus
+                    </motion.p>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Bottom right Skip button */}
           <motion.button
