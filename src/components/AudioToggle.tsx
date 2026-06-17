@@ -13,7 +13,7 @@ export default function AudioToggle() {
   };
 
   return (
-    <div className="fixed left-8 bottom-8 z-[100] flex items-center gap-4">
+    <div className="fixed left-8 bottom-8 z-[100000] flex items-center gap-4">
       <button
         onClick={toggleAudio}
         className="w-12 h-12 rounded-full glass neon-border flex items-center justify-center text-primary group transition-all hover:scale-110"
