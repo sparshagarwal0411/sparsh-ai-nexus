@@ -6,6 +6,20 @@ import { soundManager } from "@/utils/SoundManager";
 export default function AudioToggle() {
   const [isMuted, setIsMuted] = useState(true);
 
+  useEffect(() => {
+    const unmute = () => {
+      setIsMuted(false);
+      soundManager.setMuted(false);
+    };
+
+    if (sessionStorage.getItem("sparsh_loaded")) {
+      unmute();
+    }
+
+    window.addEventListener("loaderComplete", unmute);
+    return () => window.removeEventListener("loaderComplete", unmute);
+  }, []);
+
   const toggleAudio = () => {
     const newMuted = !isMuted;
     setIsMuted(newMuted);
