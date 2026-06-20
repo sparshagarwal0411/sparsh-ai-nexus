@@ -288,9 +288,9 @@ class SoundManager {
     this.ambientOsc = this.ctx.createOscillator();
     this.ambientGain = this.ctx.createGain();
     this.ambientOsc.type = "sine";
-    this.ambientOsc.frequency.setValueAtTime(220, t);
+    this.ambientOsc.frequency.setValueAtTime(55, t);
     this.ambientGain.gain.setValueAtTime(0, t);
-    this.ambientGain.gain.linearRampToValueAtTime(0.18, t + 1);
+    this.ambientGain.gain.linearRampToValueAtTime(0.02, t + 1);
     this.ambientOsc.connect(this.ambientGain);
     this.ambientGain.connect(this.output);
     this.ambientOsc.start(t);
@@ -298,9 +298,9 @@ class SoundManager {
     this.ambientPad = this.ctx.createOscillator();
     this.ambientPadGain = this.ctx.createGain();
     this.ambientPad.type = "triangle";
-    this.ambientPad.frequency.setValueAtTime(330, t);
+    this.ambientPad.frequency.setValueAtTime(82.5, t);
     this.ambientPadGain.gain.setValueAtTime(0, t);
-    this.ambientPadGain.gain.linearRampToValueAtTime(0.08, t + 1.2);
+    this.ambientPadGain.gain.linearRampToValueAtTime(0.01, t + 1.2);
     this.ambientPad.connect(this.ambientPadGain);
     this.ambientPadGain.connect(this.output);
     this.ambientPad.start(t);

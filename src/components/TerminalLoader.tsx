@@ -78,15 +78,15 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
       type: "typewrite",
       prompt: "sparsh@nexus-os:~$ ",
       text: "npm install --global sparsh-nexus-cli",
-      speed: 22,
-      delayAfter: 60,
+      speed: 40,
+      delayAfter: 200,
     },
     {
       type: "instant",
       text: "⠋ resolving dependencies...",
       lineType: "info",
-      typeSpeed: 10,
-      delayAfter: 50,
+      typeSpeed: 30,
+      delayAfter: 150,
     },
     {
       type: "logs",
@@ -96,81 +96,81 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
         { text: "✔ fetch metadata three@0.170.0", type: "success" },
         { text: "ℹ executing post-install hooks...", type: "info" },
       ],
-      interval: 55,
-      delayAfter: 60,
+      interval: 150,
+      delayAfter: 200,
     },
     {
       type: "progress",
       label: "Installing dependency tree",
-      duration: 400,
-      delayAfter: 60,
+      duration: 1200,
+      delayAfter: 200,
     },
     {
       type: "instant",
       text: "✔ Added 1432 packages in 1.48s",
       lineType: "success",
-      delayAfter: 50,
+      delayAfter: 200,
     },
     {
       type: "instant",
       text: "✔ Found 0 vulnerabilities. System secure.",
       lineType: "success",
-      delayAfter: 120,
+      delayAfter: 400,
     },
     {
       type: "instant",
       text: "",
       lineType: "output",
-      delayAfter: 40,
+      delayAfter: 150,
     },
     {
       type: "typewrite",
       prompt: "sparsh@nexus-os:~$ ",
       text: "npm run dev",
-      speed: 28,
-      delayAfter: 60,
+      speed: 50,
+      delayAfter: 200,
     },
     {
       type: "instant",
       text: "> sparsh-ai-nexus@3.0.0 dev",
       lineType: "info",
-      delayAfter: 40,
+      delayAfter: 150,
     },
     {
       type: "instant",
       text: "> vite",
       lineType: "info",
-      delayAfter: 40,
+      delayAfter: 150,
     },
     {
       type: "instant",
       text: "  VITE v5.4.19  ready in 342 ms",
       lineType: "success",
-      delayAfter: 60,
+      delayAfter: 200,
     },
     {
       type: "instant",
       text: "  ➜  Local:   http://localhost:5173/",
       lineType: "info",
-      delayAfter: 40,
+      delayAfter: 150,
     },
     {
       type: "progress",
       label: "Compiling WebGL & shaders",
-      duration: 450,
-      delayAfter: 80,
+      duration: 1000,
+      delayAfter: 300,
     },
     {
       type: "instant",
       text: "  ➜  3D Particle Scene: INITIALIZED",
       lineType: "success",
-      delayAfter: 40,
+      delayAfter: 200,
     },
     {
       type: "instant",
       text: "  ➜  status: READY. Starting Sparsh AI Nexus...",
       lineType: "success",
-      delayAfter: 200,
+      delayAfter: 500,
     },
   ];
 
@@ -217,7 +217,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     if (phase !== "greetings" || isExiting) return;
 
     if (greetingIndex >= GREETINGS.length) {
-      const timer = setTimeout(() => setPhase("helloworld"), 350);
+      const timer = setTimeout(() => setPhase("helloworld"), 700);
       return () => clearTimeout(timer);
     }
 
@@ -229,8 +229,8 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
       setGreetingVisible(false);
       advanceTimer = setTimeout(() => {
         setGreetingIndex((i) => i + 1);
-      }, 150);
-    }, 300);
+      }, 400);
+    }, 800);
 
     return () => {
       clearTimeout(holdTimer);
@@ -257,7 +257,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
         soundManager.unlockAudio();
         setTimeout(() => handleSkip(), 1400);
       }
-    }, 70);
+    }, 120);
 
     return () => clearInterval(interval);
   }, [phase, isExiting]);
