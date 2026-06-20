@@ -126,7 +126,7 @@ export default function HeroSection() {
   }, [isReady]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <motion.div
         initial={{ opacity: 0 }}
         animate={isReady ? { opacity: 1 } : { opacity: 0 }}

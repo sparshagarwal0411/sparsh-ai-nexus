@@ -10,6 +10,7 @@ class SoundManager {
   private isMuted = false;
   private pendingAmbient = false;
   private autoUnlockBound = false;
+  private isMainPage = false;
 
   constructor() {
     this.bindAutoUnlock();
@@ -21,7 +22,7 @@ class SoundManager {
 
     const onGesture = () => {
       void this.ensureRunning().then((running) => {
-        if (running && !this.isMuted) {
+        if (running && !this.isMuted && this.isMainPage) {
           this.startAmbientHum();
           this.pendingAmbient = false;
         }
@@ -67,7 +68,7 @@ class SoundManager {
   unlockAudio() {
     this.pendingAmbient = !this.isMuted;
     void this.ensureRunning().then((running) => {
-      if (running && !this.isMuted) {
+      if (running && !this.isMuted && this.isMainPage) {
         this.startAmbientHum();
         this.pendingAmbient = false;
       }
@@ -79,7 +80,7 @@ class SoundManager {
     if (!muted) {
       this.pendingAmbient = true;
       void this.ensureRunning().then((running) => {
-        if (running) {
+        if (running && this.isMainPage) {
           this.startAmbientHum();
           this.pendingAmbient = false;
         }
@@ -161,7 +162,7 @@ class SoundManager {
 
     const gain = this.ctx.createGain();
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.5, t + 0.008);
+    gain.gain.exponentialRampToValueAtTime(3.5, t + 0.008);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
 
     const thump = this.ctx.createOscillator();
@@ -169,7 +170,7 @@ class SoundManager {
     thump.type = "sine";
     thump.frequency.setValueAtTime(180, t);
     thump.frequency.exponentialRampToValueAtTime(90, t + 0.04);
-    thumpGain.gain.setValueAtTime(0.24, t);
+    thumpGain.gain.setValueAtTime(2.5, t);
     thumpGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
 
     noise.connect(filter);
@@ -236,6 +237,66 @@ class SoundManager {
     noise.stop(t + 0.014);
   }
 
+  playTransitionSound() {
+    if (this.isMuted || !this.ctx) return;
+    this.initCtx();
+    void this.ensureRunning().then(() => {
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime;
+      
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(200, t);
+      osc.frequency.exponentialRampToValueAtTime(30, t + 1.5);
+      
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.5, t + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 1.5);
+      
+      osc.connect(gain);
+      gain.connect(this.output);
+      
+      osc.start(t);
+      osc.stop(t + 1.5);
+
+      const bufferSize = this.ctx.sampleRate * 1.5;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+      }
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+      
+      const noiseFilter = this.ctx.createBiquadFilter();
+      noiseFilter.type = "lowpass";
+      noiseFilter.frequency.setValueAtTime(100, t);
+      noiseFilter.frequency.exponentialRampToValueAtTime(4000, t + 0.5);
+      noiseFilter.frequency.exponentialRampToValueAtTime(100, t + 1.5);
+      
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0, t);
+      noiseGain.gain.linearRampToValueAtTime(0.15, t + 0.5);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 1.5);
+      
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(this.output);
+      
+      noise.start(t);
+      noise.stop(t + 1.5);
+    });
+  }
+
+  enableMainPageSound() {
+    this.isMainPage = true;
+    if (!this.isMuted) {
+      this.startAmbientHum();
+    }
+  }
+
   startLoadingSound(force = false) {
     if (!force && this.isMuted) return;
     this.stopLoadingSound();
@@ -275,7 +336,7 @@ class SoundManager {
   }
 
   private startAmbientHum() {
-    if (!this.ctx || this.ambientOsc || this.isMuted) return;
+    if (!this.ctx || this.ambientOsc || this.isMuted || !this.isMainPage) return;
     if (this.ctx.state !== "running") {
       this.pendingAmbient = true;
       return;
@@ -284,27 +345,64 @@ class SoundManager {
     this.ambientStopId++;
     const t = this.ctx.currentTime;
 
-    // Use mid-range tones — 55 Hz is inaudible on most laptop/phone speakers
+    // Deep Sci-Fi Drone (C2 = 65.41Hz)
     this.ambientOsc = this.ctx.createOscillator();
     this.ambientGain = this.ctx.createGain();
     this.ambientOsc.type = "sine";
-    this.ambientOsc.frequency.setValueAtTime(55, t);
-    this.ambientGain.gain.setValueAtTime(0, t);
-    this.ambientGain.gain.linearRampToValueAtTime(0.02, t + 1);
+    this.ambientOsc.frequency.setValueAtTime(65.41, t);
+    
+    // Slow pulse LFO for the sub bass
+    const lfo = this.ctx.createOscillator();
+    lfo.type = "sine";
+    lfo.frequency.setValueAtTime(0.15, t); // Very slow 0.15 Hz pulse
+    const lfoGain = this.ctx.createGain();
+    lfoGain.gain.setValueAtTime(0.35, t);
+    lfo.connect(lfoGain);
+    
+    this.ambientGain.gain.setValueAtTime(0.5, t);
+    lfoGain.connect(this.ambientGain.gain);
+    
     this.ambientOsc.connect(this.ambientGain);
     this.ambientGain.connect(this.output);
+    
     this.ambientOsc.start(t);
+    lfo.start(t);
 
+    // Filtered Sawtooth for textured drone
     this.ambientPad = this.ctx.createOscillator();
     this.ambientPadGain = this.ctx.createGain();
-    this.ambientPad.type = "triangle";
-    this.ambientPad.frequency.setValueAtTime(82.5, t);
+    this.ambientPad.type = "sawtooth";
+    this.ambientPad.frequency.setValueAtTime(65.41, t);
+    
+    // Filter to make it subtle and muffled
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(150, t);
+    filter.Q.value = 1;
+    
+    // LFO to slowly open and close the filter
+    const filterLfo = this.ctx.createOscillator();
+    filterLfo.type = "sine";
+    filterLfo.frequency.setValueAtTime(0.05, t);
+    const filterLfoGain = this.ctx.createGain();
+    filterLfoGain.gain.setValueAtTime(50, t);
+    filterLfo.connect(filterLfoGain);
+    filterLfoGain.connect(filter.frequency);
+    
     this.ambientPadGain.gain.setValueAtTime(0, t);
-    this.ambientPadGain.gain.linearRampToValueAtTime(0.01, t + 1.2);
-    this.ambientPad.connect(this.ambientPadGain);
+    this.ambientPadGain.gain.linearRampToValueAtTime(0.4, t + 2); // massively raised volume
+    
+    this.ambientPad.connect(filter);
+    filter.connect(this.ambientPadGain);
     this.ambientPadGain.connect(this.output);
+    
     this.ambientPad.start(t);
+    filterLfo.start(t);
 
+    // Save extra nodes as any to stop them later
+    (this.ambientOsc as any)._lfo = lfo;
+    (this.ambientPad as any)._filterLfo = filterLfo;
+    
     this.pendingAmbient = false;
   }
 
@@ -322,6 +420,13 @@ class SoundManager {
     padGain?.gain.linearRampToValueAtTime(0, t + 0.5);
     setTimeout(() => {
       if (stopId !== this.ambientStopId) return;
+
+      const lfo = (osc as any)?._lfo;
+      if (lfo) lfo.stop();
+      
+      const filterLfo = (pad as any)?._filterLfo;
+      if (filterLfo) filterLfo.stop();
+
       osc?.stop();
       pad?.stop();
       this.ambientOsc = null;

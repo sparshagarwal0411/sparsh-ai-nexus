@@ -51,12 +51,12 @@ type Step = StepTypewrite | StepInstant | StepLogs | StepProgress;
 type Phase = "terminal" | "greetings" | "helloworld" | "done";
 
 const GREETINGS = [
-  "नमस्ते",     // Hindi
-  "Ciao",       // Italian
-  "ありがとう",  // Japanese
-  "Bonjour",    // French
-  "Hola",       // Spanish
-  "Hello",      // English
+  "नमस्ते!",     // Hindi
+  "Ciao!",       // Italian
+  "ありがとう!",  // Japanese
+  "Bonjour!",    // French
+  "Hola!",       // Spanish
+  "Hello!",      // English
 ];
 
 export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
@@ -207,6 +207,8 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     soundManager.stopLoadingSound();
     soundManager.setMuted(false);
     soundManager.unlockAudio();
+    soundManager.playTransitionSound();
+    soundManager.enableMainPageSound();
     setTimeout(() => {
       onComplete();
     }, 600);
@@ -277,7 +279,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
       setActivePrompt(step.prompt);
       setTypedText("");
       let charIndex = 0;
-      
+
       const interval = setInterval(() => {
         const charToType = step.text[charIndex];
         if (charToType !== undefined) {
@@ -285,7 +287,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
           soundManager.playTypeKey(true);
           charIndex++;
         }
-        
+
         if (charIndex >= step.text.length) {
           clearInterval(interval);
           setTimeout(() => {
@@ -302,8 +304,8 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
       }, step.speed || 50);
 
       return () => clearInterval(interval);
-    } 
-    
+    }
+
     if (step.type === "instant") {
       if (!step.text) {
         const timer = setTimeout(() => {
@@ -344,8 +346,8 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
         setCurrentStepIndex((idx) => idx + 1);
       }, step.delayAfter || 100);
       return () => clearTimeout(timer);
-    } 
-    
+    }
+
     if (step.type === "logs") {
       let logIdx = 0;
 
@@ -364,20 +366,20 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
       }, step.interval);
 
       return () => clearInterval(interval);
-    } 
-    
+    }
+
     if (step.type === "progress") {
       setProgressLabel(step.label);
       setProgressVal(0);
       soundManager.startLoadingSound(true);
-      
+
       const startTime = Date.now();
       const duration = step.duration;
 
       const timer = setInterval(() => {
         const elapsed = Date.now() - startTime;
         const percent = Math.min(Math.floor((elapsed / duration) * 100), 100);
-        
+
         setProgressVal(percent);
 
         if (percent >= 100) {
@@ -388,7 +390,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
             const filledWidth = Math.round((percent / 100) * barWidth);
             const emptyWidth = barWidth - filledWidth;
             const barText = `[${"█".repeat(filledWidth)}${"░".repeat(emptyWidth)}] ${percent}% - ${step.label}`;
-            
+
             setLines((prev) => [...prev, { text: barText, type: "progress" }]);
             setProgressVal(0);
             setProgressLabel("");
@@ -428,16 +430,17 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
       {!isExiting && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ 
-            opacity: 0, 
-            scale: 1.05, 
+          exit={{
+            opacity: 0,
+            scale: 1.05,
             filter: "blur(10px)"
           }}
           transition={{ duration: 0.5, ease: [0.43, 0.13, 0.23, 0.96] }}
           className="fixed inset-0 z-[99999] bg-[#030712] flex items-center justify-center font-mono overflow-hidden select-none"
         >
           {/* CRT Screen FX Styles */}
-          <style dangerouslySetInnerHTML={{ __html: `
+          <style dangerouslySetInnerHTML={{
+            __html: `
             .crt-overlay {
               background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
               background-size: 100% 3px, 6px 100%;
@@ -468,89 +471,89 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
 
           {/* Central Terminal Window */}
           <AnimatePresence>
-          {phase === "terminal" && (
-          <motion.div
-            key="terminal-window"
-            initial={{ scale: 0.92, opacity: 0, y: 15 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: -20, filter: "blur(4px)" }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
-            className="relative w-full max-w-2xl mx-3 sm:mx-4 rounded-lg border border-primary/20 bg-slate-950/80 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] overflow-hidden flex flex-col h-[min(72vh,420px)] sm:h-[450px]"
-          >
-            {/* Terminal Title Bar */}
-            <div className="flex items-center justify-between px-4 py-3 bg-slate-900/90 border-b border-primary/10">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-rose-500/80 border border-rose-600/30" />
-                <span className="w-3 h-3 rounded-full bg-amber-500/80 border border-amber-600/30" />
-                <span className="w-3 h-3 rounded-full bg-emerald-500/80 border border-emerald-600/30" />
-              </div>
-              
-              <div className="flex items-center gap-2 text-xs text-primary/70">
-                <Terminal size={12} className="text-primary animate-pulse" />
-                <span className="font-semibold tracking-wider font-mono-code">sparsh@nexus-os: ~</span>
-              </div>
+            {phase === "terminal" && (
+              <motion.div
+                key="terminal-window"
+                initial={{ scale: 0.92, opacity: 0, y: 15 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: -20, filter: "blur(4px)" }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                className="relative w-full max-w-2xl mx-3 sm:mx-4 rounded-lg border border-primary/20 bg-slate-950/80 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] overflow-hidden flex flex-col h-[min(72vh,420px)] sm:h-[450px]"
+              >
+                {/* Terminal Title Bar */}
+                <div className="flex items-center justify-between px-4 py-3 bg-slate-900/90 border-b border-primary/10">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-rose-500/80 border border-rose-600/30" />
+                    <span className="w-3 h-3 rounded-full bg-amber-500/80 border border-amber-600/30" />
+                    <span className="w-3 h-3 rounded-full bg-emerald-500/80 border border-emerald-600/30" />
+                  </div>
 
-              <div className="w-14" /> {/* spacer balance */}
-            </div>
+                  <div className="flex items-center gap-2 text-xs text-primary/70">
+                    <Terminal size={12} className="text-primary animate-pulse" />
+                    <span className="font-semibold tracking-wider font-mono-code">sparsh@nexus-os: ~</span>
+                  </div>
 
-            {/* Terminal Body */}
-            <div className="flex-1 p-3 sm:p-5 overflow-y-auto space-y-2 sm:space-y-2.5 text-[11px] sm:text-sm font-mono scrollbar-none">
-              {/* Previous Lines */}
-              {lines.map((line, idx) => (
-                <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-1">
-                  {line.promptText && (
-                    <span className="text-cyan-400 font-bold shrink-0">{line.promptText}</span>
+                  <div className="w-14" /> {/* spacer balance */}
+                </div>
+
+                {/* Terminal Body */}
+                <div className="flex-1 p-3 sm:p-5 overflow-y-auto space-y-2 sm:space-y-2.5 text-[11px] sm:text-sm font-mono scrollbar-none">
+                  {/* Previous Lines */}
+                  {lines.map((line, idx) => (
+                    <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-1">
+                      {line.promptText && (
+                        <span className="text-cyan-400 font-bold shrink-0">{line.promptText}</span>
+                      )}
+                      <span className={renderLineColor(line.type)}>
+                        {line.text}
+                      </span>
+                    </div>
+                  ))}
+
+                  {/* Active typing line */}
+                  {activePrompt && (
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-1">
+                      <span className="text-cyan-400 font-bold shrink-0">{activePrompt}</span>
+                      <span className="text-slate-100 font-semibold break-all">
+                        {typedText}
+                        <span className="inline-block w-2 h-4 ml-1 bg-primary align-middle term-cursor" />
+                      </span>
+                    </div>
                   )}
-                  <span className={renderLineColor(line.type)}>
-                    {line.text}
-                  </span>
+
+                  {/* Active Progress Bar Line */}
+                  {progressLabel && (
+                    <div className="space-y-1">
+                      <div className="text-cyan-500/80 flex items-center justify-between">
+                        <span>{progressLabel}...</span>
+                        <span>{progressVal}%</span>
+                      </div>
+                      <div className="text-cyan-500/80 leading-none">
+                        {(() => {
+                          const barWidth = 20;
+                          const filledWidth = Math.round((progressVal / 100) * barWidth);
+                          const emptyWidth = barWidth - filledWidth;
+                          return `[${"█".repeat(filledWidth)}${"░".repeat(emptyWidth)}]`;
+                        })()}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Inactive trailing prompt if nothing is typing */}
+                  {!activePrompt && !progressLabel && currentStepIndex < steps.length && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-cyan-400 font-bold">sparsh@nexus-os:~$</span>
+                      <span className="inline-block w-2 h-4 bg-primary/70 term-cursor" />
+                    </div>
+                  )}
+
+                  <div ref={terminalEndRef} />
                 </div>
-              ))}
 
-              {/* Active typing line */}
-              {activePrompt && (
-                <div className="flex flex-col sm:flex-row sm:items-start gap-1">
-                  <span className="text-cyan-400 font-bold shrink-0">{activePrompt}</span>
-                  <span className="text-slate-100 font-semibold break-all">
-                    {typedText}
-                    <span className="inline-block w-2 h-4 ml-1 bg-primary align-middle term-cursor" />
-                  </span>
-                </div>
-              )}
-
-              {/* Active Progress Bar Line */}
-              {progressLabel && (
-                <div className="space-y-1">
-                  <div className="text-cyan-500/80 flex items-center justify-between">
-                    <span>{progressLabel}...</span>
-                    <span>{progressVal}%</span>
-                  </div>
-                  <div className="text-cyan-500/80 leading-none">
-                    {(() => {
-                      const barWidth = 20;
-                      const filledWidth = Math.round((progressVal / 100) * barWidth);
-                      const emptyWidth = barWidth - filledWidth;
-                      return `[${"█".repeat(filledWidth)}${"░".repeat(emptyWidth)}]`;
-                    })()}
-                  </div>
-                </div>
-              )}
-
-              {/* Inactive trailing prompt if nothing is typing */}
-              {!activePrompt && !progressLabel && currentStepIndex < steps.length && (
-                <div className="flex items-center gap-1">
-                  <span className="text-cyan-400 font-bold">sparsh@nexus-os:~$</span>
-                  <span className="inline-block w-2 h-4 bg-primary/70 term-cursor" />
-                </div>
-              )}
-
-              <div ref={terminalEndRef} />
-            </div>
-
-            {/* Subtle Terminal Scan Lines Glow */}
-            <div className="absolute inset-0 pointer-events-none border border-primary/5 rounded-lg" />
-          </motion.div>
-          )}
+                {/* Subtle Terminal Scan Lines Glow */}
+                <div className="absolute inset-0 pointer-events-none border border-primary/5 rounded-lg" />
+              </motion.div>
+            )}
           </AnimatePresence>
 
           {/* Rolling greetings → Hello → Hello World */}

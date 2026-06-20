@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 const sections = [
   { id: "hero", label: "Home" },
   { id: "about", label: "About" },
-  { id: "projects", label: "Projects" },
   { id: "skills", label: "Skills" },
+  { id: "projects", label: "Projects" },
   { id: "achievements", label: "Achievements" },
   { id: "contact", label: "Contact" },
 ];
@@ -45,7 +45,7 @@ export default function ScrollNav() {
       {/* Progress Line */}
       <div className="relative w-[2px] h-64 bg-white/10 rounded-full overflow-hidden">
         <motion.div
-          className="absolute top-0 left-0 w-full bg-primary origin-top"
+          className="absolute top-0 left-0 w-full h-full bg-primary origin-top"
           style={{ scaleY }}
         />
       </div>
