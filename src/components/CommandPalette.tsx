@@ -62,10 +62,11 @@ export default function CommandPalette() {
   return (
     <>
       {/* Trigger Button Overlay (Visible on mobile or as hint) */}
-      <div className="fixed bottom-6 left-6 z-50 md:hidden">
+      <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-5 z-[90] md:hidden">
         <button
           onClick={() => setIsOpen(true)}
-          className="w-12 h-12 rounded-full glass neon-border flex items-center justify-center text-primary shadow-lg"
+          className="w-11 h-11 rounded-full glass neon-border flex items-center justify-center text-primary shadow-lg"
+          aria-label="Open command menu"
         >
           <Command size={20} />
         </button>

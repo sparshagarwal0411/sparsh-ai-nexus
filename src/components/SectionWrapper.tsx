@@ -12,10 +12,10 @@ interface Props {
 
 export default function SectionWrapper({ id, title, subtitle, children, className = "" }: Props) {
   return (
-    <section id={id} className={`py-24 md:py-32 ${className}`}>
-      <div className="container mx-auto px-6">
-        <div className="mb-16 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-3 gradient-text inline-block tracking-tight">
+    <section id={id} className={`py-16 sm:py-24 md:py-32 ${className}`}>
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="mb-10 sm:mb-16 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 gradient-text inline-block tracking-tight">
             <ScrambleText text={title} />
           </h2>
           {subtitle && (

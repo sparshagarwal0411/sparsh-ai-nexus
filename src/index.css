@@ -63,6 +63,7 @@
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
+    scroll-padding-top: 5rem;
   }
 
   body {

@@ -34,7 +34,7 @@ const socials = [
 export default function ContactSection() {
   return (
     <SectionWrapper id="contact" title="Get In Touch" subtitle="Let's build something amazing together">
-      <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+      <div className="grid md:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto">
 
         {/* Left Column: Contact Info */}
         <div className="space-y-8">
@@ -66,7 +66,7 @@ export default function ContactSection() {
                 viewport={{ once: false }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ x: 6 }}
-                className="flex items-center gap-4 glass rounded-xl p-5 neon-border hover:neon-glow-box transition-all duration-300 group relative overflow-hidden"
+                className="flex items-center gap-4 glass rounded-xl p-4 sm:p-5 neon-border hover:neon-glow-box transition-all duration-300 group relative overflow-hidden"
               >
                 <Snowfall color={'#00FFF0'} snowflakeCount={10} />
                 <s.icon size={22} className="text-primary flex-shrink-0" />
@@ -74,7 +74,7 @@ export default function ContactSection() {
                   <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
                     {s.label}
                   </p>
-                  <p className="text-foreground text-sm font-medium">{s.value}</p>
+                  <p className="text-foreground text-sm font-medium break-all">{s.value}</p>
                 </div>
               </motion.a>
             ))}
@@ -87,14 +87,16 @@ export default function ContactSection() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="glass rounded-xl p-10 pr-12 neon-border relative overflow-hidden"
+          className="glass rounded-xl p-5 sm:p-8 md:p-10 neon-border relative overflow-hidden mb-20 md:mb-0"
         >
           <Snowfall color={['#7F00FF']} snowflakeCount={20} />
           <div className="absolute top-0 right-0 w-32 h-25 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-32 h-25 bg-pink-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-          <h3 className="text-2xl font-bold mb-6 gradient-text">Send Message</h3>
-          <ContactForm />
+          <h3 className="text-xl sm:text-2xl font-bold mb-5 sm:mb-6 gradient-text relative z-10">Send Message</h3>
+          <div className="relative z-10">
+            <ContactForm />
+          </div>
         </motion.div>
 
       </div>
@@ -104,7 +106,7 @@ export default function ContactSection() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ delay: 0.5 }}
-        className="text-center text-muted-foreground text-xs font-mono mt-20"
+        className="text-center text-muted-foreground text-xs font-mono mt-12 sm:mt-20 pb-4"
       >
         Designed & built by Sparsh Agarwal © {new Date().getFullYear()}
       </motion.p>

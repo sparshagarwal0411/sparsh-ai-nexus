@@ -29,6 +29,7 @@ interface StepInstant {
   text: string;
   lineType: LineType;
   delayAfter?: number;
+  typeSpeed?: number;
 }
 
 interface StepLogs {
@@ -77,113 +78,99 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
       type: "typewrite",
       prompt: "sparsh@nexus-os:~$ ",
       text: "npm install --global sparsh-nexus-cli",
-      speed: 40,
-      delayAfter: 200,
+      speed: 22,
+      delayAfter: 60,
     },
     {
       type: "instant",
-      text: "⠋ resolving dependencies in package.json...",
+      text: "⠋ resolving dependencies...",
       lineType: "info",
-      delayAfter: 300,
+      typeSpeed: 10,
+      delayAfter: 50,
     },
     {
       type: "logs",
       logs: [
         { text: "✔ fetch metadata @react-three/fiber@8.18.0", type: "success" },
         { text: "✔ fetch metadata framer-motion@11.18.2", type: "success" },
-        { text: "✔ fetch metadata tailwindcss@3.4.17", type: "success" },
         { text: "✔ fetch metadata three@0.170.0", type: "success" },
-        { text: "ℹ extracting local tarballs...", type: "info" },
-        { text: "ℹ building tree structural nodes...", type: "info" },
         { text: "ℹ executing post-install hooks...", type: "info" },
       ],
-      interval: 80,
-      delayAfter: 200,
+      interval: 55,
+      delayAfter: 60,
     },
     {
       type: "progress",
       label: "Installing dependency tree",
-      duration: 800,
-      delayAfter: 200,
+      duration: 400,
+      delayAfter: 60,
     },
     {
       type: "instant",
       text: "✔ Added 1432 packages in 1.48s",
       lineType: "success",
-      delayAfter: 150,
+      delayAfter: 50,
     },
     {
       type: "instant",
       text: "✔ Found 0 vulnerabilities. System secure.",
       lineType: "success",
-      delayAfter: 450,
+      delayAfter: 120,
     },
     {
       type: "instant",
       text: "",
       lineType: "output",
-      delayAfter: 150,
+      delayAfter: 40,
     },
     {
       type: "typewrite",
       prompt: "sparsh@nexus-os:~$ ",
       text: "npm run dev",
-      speed: 50,
-      delayAfter: 250,
+      speed: 28,
+      delayAfter: 60,
     },
     {
       type: "instant",
       text: "> sparsh-ai-nexus@3.0.0 dev",
       lineType: "info",
-      delayAfter: 100,
+      delayAfter: 40,
     },
     {
       type: "instant",
       text: "> vite",
       lineType: "info",
-      delayAfter: 100,
+      delayAfter: 40,
     },
     {
       type: "instant",
       text: "  VITE v5.4.19  ready in 342 ms",
       lineType: "success",
-      delayAfter: 150,
+      delayAfter: 60,
     },
     {
       type: "instant",
       text: "  ➜  Local:   http://localhost:5173/",
       lineType: "info",
-      delayAfter: 100,
-    },
-    {
-      type: "instant",
-      text: "  ➜  Network: use --host to expose",
-      lineType: "warning",
-      delayAfter: 100,
+      delayAfter: 40,
     },
     {
       type: "progress",
       label: "Compiling WebGL & shaders",
-      duration: 900,
-      delayAfter: 250,
-    },
-    {
-      type: "instant",
-      text: "  ➜  Asset Pipeline: BUNDLED (42 assets)",
-      lineType: "success",
-      delayAfter: 100,
+      duration: 450,
+      delayAfter: 80,
     },
     {
       type: "instant",
       text: "  ➜  3D Particle Scene: INITIALIZED",
       lineType: "success",
-      delayAfter: 100,
+      delayAfter: 40,
     },
     {
       type: "instant",
       text: "  ➜  status: READY. Starting Sparsh AI Nexus...",
       lineType: "success",
-      delayAfter: 600,
+      delayAfter: 200,
     },
   ];
 
@@ -191,6 +178,17 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
   useEffect(() => {
     terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [lines, typedText, progressVal]);
+
+  // Unlock audio on first interaction (browser autoplay policy)
+  useEffect(() => {
+    const unlock = () => soundManager.unlockAudio();
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, []);
 
   // Handle ESC key to skip
   useEffect(() => {
@@ -206,9 +204,12 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
   const handleSkip = () => {
     setIsExiting(true);
     sessionStorage.setItem("sparsh_loaded", "true");
+    soundManager.stopLoadingSound();
+    soundManager.setMuted(false);
+    soundManager.unlockAudio();
     setTimeout(() => {
       onComplete();
-    }, 600); // Allow exit animation to complete
+    }, 600);
   };
 
   // Greetings rolling sequence
@@ -216,7 +217,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     if (phase !== "greetings" || isExiting) return;
 
     if (greetingIndex >= GREETINGS.length) {
-      const timer = setTimeout(() => setPhase("helloworld"), 350);
+      const timer = setTimeout(() => setPhase("helloworld"), 200);
       return () => clearTimeout(timer);
     }
 
@@ -228,8 +229,8 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
       setGreetingVisible(false);
       advanceTimer = setTimeout(() => {
         setGreetingIndex((i) => i + 1);
-      }, 220);
-    }, 420);
+      }, 150);
+    }, 300);
 
     return () => {
       clearTimeout(holdTimer);
@@ -252,6 +253,8 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
         charIndex++;
       } else {
         clearInterval(interval);
+        soundManager.setMuted(false);
+        soundManager.unlockAudio();
         setTimeout(() => handleSkip(), 1400);
       }
     }, 70);
@@ -264,7 +267,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     if (isExiting || phase !== "terminal") return;
 
     if (currentStepIndex >= steps.length) {
-      const timer = setTimeout(() => setPhase("greetings"), 500);
+      const timer = setTimeout(() => setPhase("greetings"), 250);
       return () => clearTimeout(timer);
     }
 
@@ -302,6 +305,40 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     } 
     
     if (step.type === "instant") {
+      if (!step.text) {
+        const timer = setTimeout(() => {
+          setLines((prev) => [...prev, { text: step.text, type: step.lineType }]);
+          setCurrentStepIndex((idx) => idx + 1);
+        }, step.delayAfter || 100);
+        return () => clearTimeout(timer);
+      }
+
+      if (step.typeSpeed) {
+        let charIndex = 0;
+        setLines((prev) => [...prev, { text: "", type: step.lineType }]);
+
+        const interval = setInterval(() => {
+          if (charIndex < step.text.length) {
+            const char = step.text[charIndex];
+            charIndex++;
+            soundManager.playTypeKey(true);
+            setLines((prev) => {
+              const next = [...prev];
+              const last = next[next.length - 1];
+              next[next.length - 1] = { ...last, text: last.text + char };
+              return next;
+            });
+          } else {
+            clearInterval(interval);
+            setTimeout(() => {
+              setCurrentStepIndex((idx) => idx + 1);
+            }, step.delayAfter || 100);
+          }
+        }, step.typeSpeed);
+
+        return () => clearInterval(interval);
+      }
+
       const timer = setTimeout(() => {
         setLines((prev) => [...prev, { text: step.text, type: step.lineType }]);
         setCurrentStepIndex((idx) => idx + 1);
@@ -311,19 +348,18 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     
     if (step.type === "logs") {
       let logIdx = 0;
+
       const interval = setInterval(() => {
         if (logIdx < step.logs.length) {
           const currentLog = step.logs[logIdx];
-          setLines((prev) => [
-            ...prev,
-            { text: currentLog.text, type: currentLog.type },
-          ]);
+          soundManager.playTypeKey(true);
+          setLines((prev) => [...prev, { text: currentLog.text, type: currentLog.type }]);
           logIdx++;
         } else {
           clearInterval(interval);
           setTimeout(() => {
             setCurrentStepIndex((idx) => idx + 1);
-          }, step.delayAfter || 100);
+          }, step.delayAfter || 60);
         }
       }, step.interval);
 
@@ -333,6 +369,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     if (step.type === "progress") {
       setProgressLabel(step.label);
       setProgressVal(0);
+      soundManager.startLoadingSound(true);
       
       const startTime = Date.now();
       const duration = step.duration;
@@ -345,8 +382,8 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
 
         if (percent >= 100) {
           clearInterval(timer);
+          soundManager.stopLoadingSound();
           setTimeout(() => {
-            // Commit progress bar as plain output line
             const barWidth = 20;
             const filledWidth = Math.round((percent / 100) * barWidth);
             const emptyWidth = barWidth - filledWidth;
@@ -360,7 +397,10 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
         }
       }, 30);
 
-      return () => clearInterval(timer);
+      return () => {
+        clearInterval(timer);
+        soundManager.stopLoadingSound();
+      };
     }
   }, [currentStepIndex, isExiting, phase]);
 
@@ -435,7 +475,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: -20, filter: "blur(4px)" }}
             transition={{ duration: 0.45, ease: "easeOut" }}
-            className="relative w-full max-w-2xl mx-4 rounded-lg border border-primary/20 bg-slate-950/80 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] overflow-hidden flex flex-col h-[420px] sm:h-[450px]"
+            className="relative w-full max-w-2xl mx-3 sm:mx-4 rounded-lg border border-primary/20 bg-slate-950/80 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] overflow-hidden flex flex-col h-[min(72vh,420px)] sm:h-[450px]"
           >
             {/* Terminal Title Bar */}
             <div className="flex items-center justify-between px-4 py-3 bg-slate-900/90 border-b border-primary/10">
@@ -454,7 +494,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
             </div>
 
             {/* Terminal Body */}
-            <div className="flex-1 p-5 overflow-y-auto space-y-2.5 text-xs sm:text-sm font-mono scrollbar-none">
+            <div className="flex-1 p-3 sm:p-5 overflow-y-auto space-y-2 sm:space-y-2.5 text-[11px] sm:text-sm font-mono scrollbar-none">
               {/* Previous Lines */}
               {lines.map((line, idx) => (
                 <div key={idx} className="flex flex-col sm:flex-row sm:items-start gap-1">
@@ -574,7 +614,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
             animate={{ opacity: 0.6 }}
             whileHover={{ opacity: 1, scale: 1.05 }}
             onClick={handleSkip}
-            className="absolute bottom-8 right-8 px-4 py-2 rounded-md glass neon-border text-xs text-primary font-mono tracking-wider flex items-center gap-2 cursor-pointer z-50 hover:bg-primary/5"
+            className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 sm:bottom-8 sm:right-8 px-3 sm:px-4 py-2 rounded-md glass neon-border text-[11px] sm:text-xs text-primary font-mono tracking-wider flex items-center gap-2 cursor-pointer z-50 hover:bg-primary/5"
           >
             <Play size={10} className="fill-primary text-primary" />
             <span>Skip Intro</span>
