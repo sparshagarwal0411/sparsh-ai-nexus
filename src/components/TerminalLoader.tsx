@@ -217,7 +217,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     if (phase !== "greetings" || isExiting) return;
 
     if (greetingIndex >= GREETINGS.length) {
-      const timer = setTimeout(() => setPhase("helloworld"), 200);
+      const timer = setTimeout(() => setPhase("helloworld"), 350);
       return () => clearTimeout(timer);
     }
 
@@ -267,7 +267,7 @@ export default function TerminalLoader({ onComplete }: TerminalLoaderProps) {
     if (isExiting || phase !== "terminal") return;
 
     if (currentStepIndex >= steps.length) {
-      const timer = setTimeout(() => setPhase("greetings"), 250);
+      const timer = setTimeout(() => setPhase("greetings"), 500);
       return () => clearTimeout(timer);
     }
 

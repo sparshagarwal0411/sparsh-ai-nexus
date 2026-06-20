@@ -7,7 +7,31 @@ class SoundManager {
   private ambientPadGain: GainNode | null = null;
   private ambientStopId = 0;
   private loadTickId: ReturnType<typeof setInterval> | null = null;
-  private isMuted: boolean = false;
+  private isMuted = false;
+  private pendingAmbient = false;
+  private autoUnlockBound = false;
+
+  constructor() {
+    this.bindAutoUnlock();
+  }
+
+  private bindAutoUnlock() {
+    if (this.autoUnlockBound || typeof window === "undefined") return;
+    this.autoUnlockBound = true;
+
+    const onGesture = () => {
+      void this.ensureRunning().then((running) => {
+        if (running && !this.isMuted) {
+          this.startAmbientHum();
+          this.pendingAmbient = false;
+        }
+      });
+    };
+
+    window.addEventListener("pointerdown", onGesture);
+    window.addEventListener("keydown", onGesture);
+    window.addEventListener("touchstart", onGesture, { passive: true });
+  }
 
   private initCtx() {
     if (!this.ctx) {
@@ -23,12 +47,17 @@ class SoundManager {
     return this.masterGain ?? this.ctx!.destination;
   }
 
-  private async ensureRunning() {
+  private async ensureRunning(): Promise<boolean> {
     this.initCtx();
-    if (!this.ctx) return;
+    if (!this.ctx) return false;
     if (this.ctx.state === "suspended") {
-      await this.ctx.resume();
+      try {
+        await this.ctx.resume();
+      } catch {
+        return false;
+      }
     }
+    return this.ctx.state === "running";
   }
 
   getIsMuted() {
@@ -36,9 +65,11 @@ class SoundManager {
   }
 
   unlockAudio() {
-    void this.ensureRunning().then(() => {
-      if (!this.isMuted) {
+    this.pendingAmbient = !this.isMuted;
+    void this.ensureRunning().then((running) => {
+      if (running && !this.isMuted) {
         this.startAmbientHum();
+        this.pendingAmbient = false;
       }
     });
   }
@@ -46,8 +77,15 @@ class SoundManager {
   setMuted(muted: boolean) {
     this.isMuted = muted;
     if (!muted) {
-      void this.ensureRunning().then(() => this.startAmbientHum());
+      this.pendingAmbient = true;
+      void this.ensureRunning().then((running) => {
+        if (running) {
+          this.startAmbientHum();
+          this.pendingAmbient = false;
+        }
+      });
     } else {
+      this.pendingAmbient = false;
       this.stopAmbientHum();
       this.stopLoadingSound();
     }
@@ -238,33 +276,36 @@ class SoundManager {
 
   private startAmbientHum() {
     if (!this.ctx || this.ambientOsc || this.isMuted) return;
+    if (this.ctx.state !== "running") {
+      this.pendingAmbient = true;
+      return;
+    }
 
     this.ambientStopId++;
+    const t = this.ctx.currentTime;
+
+    // Use mid-range tones — 55 Hz is inaudible on most laptop/phone speakers
     this.ambientOsc = this.ctx.createOscillator();
     this.ambientGain = this.ctx.createGain();
-
     this.ambientOsc.type = "sine";
-    this.ambientOsc.frequency.setValueAtTime(55, this.ctx.currentTime);
-
-    this.ambientGain.gain.setValueAtTime(0, this.ctx.currentTime);
-    this.ambientGain.gain.linearRampToValueAtTime(0.09, this.ctx.currentTime + 1.5);
-
+    this.ambientOsc.frequency.setValueAtTime(220, t);
+    this.ambientGain.gain.setValueAtTime(0, t);
+    this.ambientGain.gain.linearRampToValueAtTime(0.18, t + 1);
     this.ambientOsc.connect(this.ambientGain);
     this.ambientGain.connect(this.output);
+    this.ambientOsc.start(t);
 
-    this.ambientOsc.start();
+    this.ambientPad = this.ctx.createOscillator();
+    this.ambientPadGain = this.ctx.createGain();
+    this.ambientPad.type = "triangle";
+    this.ambientPad.frequency.setValueAtTime(330, t);
+    this.ambientPadGain.gain.setValueAtTime(0, t);
+    this.ambientPadGain.gain.linearRampToValueAtTime(0.08, t + 1.2);
+    this.ambientPad.connect(this.ambientPadGain);
+    this.ambientPadGain.connect(this.output);
+    this.ambientPad.start(t);
 
-    const pad = this.ctx.createOscillator();
-    const padGain = this.ctx.createGain();
-    pad.type = "sine";
-    pad.frequency.setValueAtTime(110, this.ctx.currentTime);
-    padGain.gain.setValueAtTime(0, this.ctx.currentTime);
-    padGain.gain.linearRampToValueAtTime(0.035, this.ctx.currentTime + 1.5);
-    pad.connect(padGain);
-    padGain.connect(this.output);
-    pad.start();
-    this.ambientPad = pad;
-    this.ambientPadGain = padGain;
+    this.pendingAmbient = false;
   }
 
   private stopAmbientHum() {
@@ -276,8 +317,9 @@ class SoundManager {
 
     if (!gain || !this.ctx) return;
 
-    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.6);
-    padGain?.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.6);
+    const t = this.ctx.currentTime;
+    gain.gain.linearRampToValueAtTime(0, t + 0.5);
+    padGain?.gain.linearRampToValueAtTime(0, t + 0.5);
     setTimeout(() => {
       if (stopId !== this.ambientStopId) return;
       osc?.stop();
@@ -286,7 +328,7 @@ class SoundManager {
       this.ambientGain = null;
       this.ambientPad = null;
       this.ambientPadGain = null;
-    }, 700);
+    }, 600);
   }
 }
 

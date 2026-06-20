@@ -16,8 +16,6 @@ export default function AudioToggle() {
       soundManager.unlockAudio();
     };
 
-    const unlockOnInteraction = () => soundManager.unlockAudio();
-
     const onLoaderComplete = () => {
       unmute();
       setVisible(true);
@@ -29,13 +27,9 @@ export default function AudioToggle() {
     }
 
     window.addEventListener("loaderComplete", onLoaderComplete);
-    document.addEventListener("pointerdown", unlockOnInteraction, { once: true });
-    document.addEventListener("keydown", unlockOnInteraction, { once: true });
 
     return () => {
       window.removeEventListener("loaderComplete", onLoaderComplete);
-      document.removeEventListener("pointerdown", unlockOnInteraction);
-      document.removeEventListener("keydown", unlockOnInteraction);
     };
   }, []);
 
@@ -44,7 +38,7 @@ export default function AudioToggle() {
     setIsMuted(newMuted);
     soundManager.setMuted(newMuted);
     if (!newMuted) {
-      soundManager.unlockAudio();
+      void soundManager.unlockAudio();
     }
   };
 

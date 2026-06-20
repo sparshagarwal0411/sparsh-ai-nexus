@@ -12,6 +12,7 @@ import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import TerminalLoader from "@/components/TerminalLoader";
+import { soundManager } from "@/utils/SoundManager";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,8 @@ const App = () => {
       document.body.style.overflow = "";
       if (typeof window !== "undefined") {
         (window as any).__sparsh_loader_complete = true;
+        soundManager.setMuted(false);
+        soundManager.unlockAudio();
         window.dispatchEvent(new Event("loaderComplete"));
       }
     }
